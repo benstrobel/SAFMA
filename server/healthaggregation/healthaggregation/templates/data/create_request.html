@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container-narrow">
+  <h1 class="mt-5">Create new data request</h1>
+    <br/>
+    <form id="registerForm" class="form form-register" method="POST" action="" role="form">
+           {{ form.csrf_token }}
+            <div class="form-group">
+                {{form.requested_url.label}}
+                {{form.requested_url(placeholder="URL to request", class_="form-control")}}
+            </div>
+            <div class="form-group">
+                {{form.expected_dimensionality.label}}
+                {{form.expected_dimensionality(placeholder="Dimensionality", class_="form-control")}}
+            </div>
+            <p><input class="btn btn-primary" type="submit" value="Create"></p>
+    </form>
+</div>
+{% endblock %}

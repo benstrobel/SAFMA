@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Healthaggregation</string>
+    <string name="debug_channel_name">Healthaggregation Incoming Requests</string>
+    <string name="debug_channel_description">Displays a notification with details of incoming requests</string>
+    <string name="permission_reminder_channel_name">Healthaggregation Permission Reminder</string>
+    <string name="permission_reminder_channel_description">Reminds the user to reopen the app when permission to the google account has expired </string>
+</resources>
