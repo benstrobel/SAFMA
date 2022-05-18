@@ -40,4 +40,4 @@ The data resolver takes the requested URL and possible arguements, accesses the 
 If you'd like to use other datasources than the already implemented sources you may add additional endpoints to the data resolver by following these steps:
 
 1. Implement a class extending the DataSource class that abstracts the access to your data source
-2. Call the static registerDataSource method of the URLResolver class on app startup
+2. Call the registerDataSource method of the URLResolver instance on app startup
