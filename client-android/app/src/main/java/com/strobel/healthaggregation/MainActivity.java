@@ -16,6 +16,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
+import com.strobel.healthaggregation.payload.URLResolver;
+import com.strobel.healthaggregation.payload.datasources.DummyDataSource;
 import com.strobel.healthaggregation.payload.datasources.GoogleFitDataSource;
 
 public class MainActivity extends AppCompatActivity {
@@ -36,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         FirebaseMessaging.getInstance().subscribeToTopic("data_requests");
+        URLResolver.INSTANCE.registerDataSource("test", new DummyDataSource());
+        URLResolver.INSTANCE.registerDataSource("googlefit/steps", new GoogleFitDataSource());
         requestPermissionIfNeeded();
     }
 

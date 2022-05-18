@@ -24,11 +24,16 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class GoogleFitDataSource {
+public class GoogleFitDataSource extends com.strobel.healthaggregation.payload.datasources.DataSource {
+
+    private static DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
 
     public static final FitnessOptions fitnessOptions = FitnessOptions
             .builder()
@@ -116,5 +121,45 @@ public class GoogleFitDataSource {
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
         NotificationManagerCompat.from(context).notify(FirebaseMessagingService.notificationId++, builder.build());
+    }
+
+    @Override
+    public long[] resolve(Map<String, List<String>> params, Context context) {
+        long [] result = new long[] {}; // This will break the dimension constraint server side and therefore lead to a dropout of this client
+
+        if(params.get("date") != null && params.get("date").size() == 1){
+            LocalDate requested_date = LocalDate.parse(params.get("date").get(0), formatter);
+
+            if (params.get("date").size() == 1){
+                try {
+                    result = new long[]{GoogleFitDataSource.getDailyStepCountForDateBlocking(context, requested_date)};
+                } catch (Exception e) { }
+
+                if(params.get("threshold") != null && params.get("threshold").size() >= 1){
+                    int[] threshholds = params.get("threshold").stream().mapToInt(Integer::parseInt).sorted().toArray();
+                    long oldResult = result[0];
+                    result = new long[threshholds.length-1];
+                    for(int i = 0; i < threshholds.length-1; i++) {
+                        result[i] = (threshholds[i] < oldResult && oldResult <= threshholds[i+1]) ? 1 : 0;
+                    }
+                }
+            }
+        } else if(params.get("fromDate") != null && params.get("fromDate").size() == 1 && params.get("toDate") != null && params.get("toDate").size() == 1){
+            LocalDate fromDate = LocalDate.parse(params.get("fromDate").get(0), formatter);
+            LocalDate toDate = LocalDate.parse(params.get("toDate").get(0), formatter);
+
+            try {
+                result = Arrays.stream(GoogleFitDataSource.getDailyStepCountForDateRangeBlocking(context, fromDate, toDate)).asLongStream().toArray();
+            } catch (Exception e) { }
+
+            if(params.get("threshold") != null && params.get("threshold").size() == 1){
+                int threshold = Integer.parseInt(params.get("threshold").get(0));
+                for(int i = 0; i < result.length; i++) {
+                    result[i] = result[i] > threshold ? 1 : 0;
+                }
+            }
+        }
+
+        return result;
     }
 }

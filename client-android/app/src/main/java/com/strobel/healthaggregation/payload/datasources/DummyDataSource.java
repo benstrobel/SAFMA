@@ -1,8 +1,14 @@
 package com.strobel.healthaggregation.payload.datasources;
 
-public class DummyDataSource {
+import android.content.Context;
 
-    public static long[] getPayload() {
+import java.util.List;
+import java.util.Map;
+
+public class DummyDataSource extends DataSource{
+
+    @Override
+    public long[] resolve(Map<String, List<String>> params, Context context) {
         return new long [] {
                 1,
                 22,

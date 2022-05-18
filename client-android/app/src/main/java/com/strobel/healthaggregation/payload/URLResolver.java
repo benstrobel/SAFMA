@@ -2,6 +2,7 @@ package com.strobel.healthaggregation.payload;
 
 import android.content.Context;
 
+import com.strobel.healthaggregation.payload.datasources.DataSource;
 import com.strobel.healthaggregation.payload.datasources.DummyDataSource;
 import com.strobel.healthaggregation.payload.datasources.GoogleFitDataSource;
 
@@ -12,7 +13,9 @@ import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,10 +24,15 @@ import java.util.Map;
 public class URLResolver {
 
     public static URLResolver INSTANCE = new URLResolver();
-    private static DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
+
+    private Map<String, DataSource> dataSources = new HashMap<>();
 
     private URLResolver() {
 
+    }
+
+    public void registerDataSource(String URL, DataSource dataSource) {
+        dataSources.put(URL, dataSource);
     }
 
     public long[] resolve(String url, Context context) {
@@ -39,47 +47,12 @@ public class URLResolver {
             return new long[] {};
         }
 
-        if(uri.getPath().equals("test")) {
-            return DummyDataSource.getPayload();
-        } else if (uri.getPath().equals("googlefit/steps")) {
-
-            long [] result = new long[] {}; // This will break the dimension constraint server side and therefore lead to a dropout of this client
-
-            if(params.get("date") != null && params.get("date").size() == 1){
-                LocalDate requested_date = LocalDate.parse(params.get("date").get(0), formatter);
-
-                if (params.get("date").size() == 1){
-                    try {
-                        result = new long[]{GoogleFitDataSource.getDailyStepCountForDateBlocking(context, requested_date)};
-                    } catch (Exception e) { }
-
-                    if(params.get("threshold") != null && params.get("threshold").size() >= 1){
-                        int[] threshholds = params.get("threshold").stream().mapToInt(Integer::parseInt).sorted().toArray();
-                        long oldResult = result[0];
-                        result = new long[threshholds.length-1];
-                        for(int i = 0; i < threshholds.length-1; i++) {
-                            result[i] = (threshholds[i] < oldResult && oldResult <= threshholds[i+1]) ? 1 : 0;
-                        }
-                    }
-                }
-            } else if(params.get("fromDate") != null && params.get("fromDate").size() == 1 && params.get("toDate") != null && params.get("toDate").size() == 1){
-                LocalDate fromDate = LocalDate.parse(params.get("fromDate").get(0), formatter);
-                LocalDate toDate = LocalDate.parse(params.get("toDate").get(0), formatter);
-
-                try {
-                    result = Arrays.stream(GoogleFitDataSource.getDailyStepCountForDateRangeBlocking(context, fromDate, toDate)).asLongStream().toArray();
-                } catch (Exception e) { }
-
-                if(params.get("threshold") != null && params.get("threshold").size() == 1){
-                    int threshold = Integer.parseInt(params.get("threshold").get(0));
-                    for(int i = 0; i < result.length; i++) {
-                        result[i] = result[i] > threshold ? 1 : 0;
-                    }
-                }
+        for(Map.Entry<String, DataSource> entry : dataSources.entrySet()){
+            if(entry.getKey().equals(url)){
+                return entry.getValue().resolve(params, context);
             }
-
-            return result;
         }
+
         return new long[] {};
     }
 
