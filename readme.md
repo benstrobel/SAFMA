@@ -4,8 +4,7 @@
 
 ### Server Setup
 
-TODO, See /server/healthaggregation/readme.md for now
-TODO copy .env.example to .env and replace dummy values
+See /server/healthaggregation/readme.md
 
 #### Firebase Configuration
 
