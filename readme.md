@@ -39,4 +39,5 @@ For debugging purposes you may add up to 100 google accounts as test accounts to
 The data resolver takes the requested URL and possible arguements, accesses the corresponding data on the device and returns them to the framework.
 If you'd like to use other datasources than the already implemented sources you may add additional endpoints to the data resolver by following these steps:
 
-TODO
+1. Implement a class extending the DataSource class that abstracts the access to your data source
+2. Call the static registerDataSource method of the URLResolver class on app startup
