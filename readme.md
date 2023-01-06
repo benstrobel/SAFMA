@@ -1,5 +1,9 @@
 # Readme
 
+## What is this project?
+
+As part of my bachelors thesis I developed a framework which allows the collection of aggregations of sensitive data from mobile devices while maintaining data privacy towards the data collecting entity and all other participants. The abstract of the thesis was published in the [Congress for German Medical Science 2022](https://www.egms.de/static/en/meetings/gmds2022/22gmds010.shtml). Maintaining data privacy is possible by calculating pairwise perturbations, where the perturbations of two partners cancel each other out. Then the perturbations get added to each partners payload and sent to the server. Since the perturbation pairs cancel each other out when combined, the resulting aggregation is correct. The framework additionally handles dropout of up to half of the participants at any time during the protocol.
+
 ## Setup
 
 ### Server Setup
